@@ -10,7 +10,6 @@ const Navbar = () => {
 
   const navItems = [
     { path: "/", title: "Start a search" },
-    { path: "/my-job", title: "My Jobs" },
     { path: "salary", title: "Salary Estimate" },
     { path: "/post-job", title: "Post A Job" },
   ];
@@ -52,14 +51,14 @@ const Navbar = () => {
           ))}
         </ul>
         <div className="text-base text-primary font-medium space-x-5 hidden lg:block">
-          <Link to="/login" className="py-2 px-5 border rounded">
-            Log in
-          </Link>
           <Link
             to="/sign-up"
             className="py-2 px-5 border rounded text-white text-primary bg-blue"
           >
             Sign up
+          </Link>
+          <Link to="/login" className="py-2 px-5 border rounded">
+            Log in
           </Link>
         </div>
         {/* mobile menu  */}
@@ -98,6 +97,7 @@ const Navbar = () => {
           <li className="text-white py-1">
             <Link to="/login">Log in</Link>
           </li>
+          
         </ul>
       </div>
     </header>

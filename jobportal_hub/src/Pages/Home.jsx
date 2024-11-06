@@ -14,7 +14,7 @@ const Home = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch("jobs.json")
+    fetch("http://localhost:5000/api/job/all-jobs")
       .then((res) => res.json())
       .then((data) => {
         //  console.log(data);
@@ -29,9 +29,17 @@ const Home = () => {
   };
 
   //   Filter Jobs by title
-  const filteredItems = jobs.filter(
-    (jobs) => jobs.jobTitle.toLowerCase().indexOf(query.toLowerCase()) !== -1
-  );
+  const filteredItems = jobs.filter((job) => {
+    if (query && query.trim() !== "") {
+      if (job && job.jobTitle) {
+        return job.jobTitle.toLowerCase().includes(query.toLowerCase());
+      } else {
+        console.warn("Missing jobTitle for job:", job);
+        return false;
+      }
+    }
+    return true; // If query is empty, return all jobs
+  });
 
   //   Radio filter
   const handleChange = (event) => {
@@ -84,12 +92,10 @@ const Home = () => {
           salaryType,
           employmentType,
         }) =>
-          jobLocation.toLowerCase() === selected.toLowerCase() ||
-          parseInt(maxPrice) === parseInt(selected) ||
-          postingDate >= selected || 
-          salaryType.toLowerCase() === selected.toLowerCase() ||
-          experienceLevel.toLowerCase() === selected.toLowerCase() ||
-          employmentType.toLowerCase() === selected.toLowerCase()
+          jobLocation?.toLowerCase() === selected.toLowerCase() ||
+          salaryType?.toLowerCase() === selected.toLowerCase() ||
+          experienceLevel?.toLowerCase() === selected.toLowerCase() ||
+          employmentType?.toLowerCase() === selected.toLowerCase()
       );
       console.log(filteredJobs);
     }
@@ -102,6 +108,7 @@ const Home = () => {
   };
 
   const result = filteredData(jobs, selectedCategory, query);
+  // console.log(result)
 
   return (
     <div>
@@ -157,7 +164,9 @@ const Home = () => {
         </div>
 
         {/* right side */}
-        <div className="bg-white p-4 rounded"><Newsletter/></div>
+        <div className="bg-white p-4 rounded">
+          <Newsletter />
+        </div>
       </div>
     </div>
   );

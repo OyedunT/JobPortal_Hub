@@ -1,32 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import CreatableSelect from "react-select/creatable";
+import { FaUpload } from "react-icons/fa";
+// import { post } from "../api";
 
 const CreateJob = () => {
   const [selectedOption, setSeletedOption] = useState(null);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [value, setValue] = useState(null);
 
-  const onSubmit = (data) => {
-    data.skills = selectedOption;
-  
-    fetch("http://localhost:5000/post-job", {  
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-    .then((res) => res.json())
-    .then((result) => {
-      console.log(result);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  };
-  
   const options = [
     { value: "JavaScript", label: "JavaScript" },
     { value: "C++", label: "C++" },
@@ -38,7 +20,71 @@ const CreateJob = () => {
     { value: "MongoDB", label: "MongoDB" },
     { value: "Java", label: "Java" },
   ];
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
+  const onSubmit = (data) => {
+    data.skills = selectedOption;
+
+    const formData = new FormData();
+    // formData.append('companyLogo', data.companyLogo[0]); // Append the file
+    formData.append("companyLogo", value);
+
+    // Append other form data if needed
+    for (const key in data) {
+      if (key !== "companyLogo") {
+        formData.append(key, data[key]);
+      }
+    }
+
+    //     for (const key of formData) {
+    //       console.log(key);
+
+    //     }
+    // return;
+    // post("post-job", formData, (result) => {
+    //   console.log(result);
+    //   if (result.acknowledge === true) {
+    //   alert("Job Posted Successfully!!!")
+    //   }
+    //   reset()
+    // })
+
+    fetch("http://localhost:5000/api/job/post-job", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((result) => {
+        if (result.acknowledge === true) {
+          alert("Job Posted Successfully!!!");
+        }
+        reset();
+      })
+      .catch((error) => {
+        console.error("Error posting job:", error);
+      });
+
+   
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+      setValue(file);
+    }
+  };
   return (
     <div className="max-w-screen-2xl container mx-auto xl:px-4">
       {/* Form */}
@@ -152,11 +198,29 @@ const CreateJob = () => {
             <div className="lg:w-1/2 w-full">
               <label className="block mb-2 text-lg"> Company Logo</label>
               <input
-                type="url"
-                placeholder="Paste your comapy logo URL: https://weshare.com/img1"
+                id="companyLogo"
+                type="file"
+                placeholder="Paste your comapy logo "
                 {...register("companyLogo")}
                 className="create-job-input"
+                style={{ display: "none" }}
+                onChange={handleImageChange}
               />
+              <label htmlFor="companyLogo" className="custom-file-upload">
+                {selectedImage ? (
+                  <img
+                    src={selectedImage}
+                    alt="Selected Logo"
+                    className="upload-icon"
+                  />
+                ) : (
+                  <img
+                    src="../../public/images/logo.jpg"
+                    alt="Upload Icon"
+                    className="upload-icon"
+                  />
+                )}
+              </label>
             </div>
             <div className="lg:w-1/2 w-full">
               <label className="block mb-2 text-lg">Employment Type</label>
@@ -192,7 +256,7 @@ const CreateJob = () => {
             <input
               type="email"
               placeholder="Your Email"
-              {...register("postedBy")}
+              {...register("companyEmail")}
               className="create-job-input"
             />
           </div>
